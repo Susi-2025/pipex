@@ -6,7 +6,7 @@
 /*   By: vinguyen <vinguyen@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 11:11:42 by vinguyen          #+#    #+#             */
-/*   Updated: 2025/06/17 15:26:01 by vinguyen         ###   ########.fr       */
+/*   Updated: 2025/06/17 16:49:51 by vinguyen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,6 @@ int	main(int ac, char **av, char **envp)
 		exit(EXIT_FAILURE);
 	else
 	{
-//		pipe(pipefd);
 		if (pipe(pipefd) == -1)
 			return (EXIT_FAILURE);
 		pid = fork();
@@ -52,6 +51,7 @@ void	children_process(char **av, char **envp, int pipefd[2])
 	printf("Value of fd and pipefd[1]: %d %d \n", fd, pipefd[1]);
 	dup2(fd, STDIN_FILENO);
 	dup2(pipefd[1],STDOUT_FILENO);
+	write(STDOUT_FILENO, "test output1 \n", 14);
 	execute(av, envp);
 	close(pipefd[0]);
 }
@@ -61,17 +61,22 @@ void	parent_process(char **av, char **envp, int pipefd[2])
 	int fd;
 	
 	printf("Parent Process\n");
-	fd = open(av[4], O_WRONLY, 00700);
+	fd = open(av[4], O_WRONLY  | O_CREAT, 0645);
 	if (fd == -1)
 		return ;
 	dup2(pipefd[0], STDIN_FILENO);
 	dup2(fd, STDOUT_FILENO);
 	close(pipefd[1]);
+	write(STDOUT_FILENO, "test output2 \n", 14);
 	execute(av, envp);
 }
 
 void	execute(char **av, char **envp)
 {
 	printf("%s\n", av[4]);
-	printf("%s\n", envp[0]);
+	while (*envp)
+	{
+		printf("%s\n", envp[0]);
+		envp++;
+	}
 }
