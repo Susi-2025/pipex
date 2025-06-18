@@ -6,7 +6,7 @@
 /*   By: vinguyen <vinguyen@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/17 11:11:42 by vinguyen          #+#    #+#             */
-/*   Updated: 2025/06/17 16:49:51 by vinguyen         ###   ########.fr       */
+/*   Updated: 2025/06/18 13:13:30 by vinguyen         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ int	main(int ac, char **av, char **envp)
 {
 	int		pipefd[2];
 	pid_t	pid;
-
 
 	if (ac != 5)
 		exit(EXIT_FAILURE);
@@ -41,7 +40,8 @@ int	main(int ac, char **av, char **envp)
 void	children_process(char **av, char **envp, int pipefd[2])
 {
 	int	fd;
-	printf("Children Process\n");	
+
+	printf("Children Process\n");
 	fd = open(av[1], O_RDONLY);
 	if (fd == -1)
 	{
@@ -50,30 +50,35 @@ void	children_process(char **av, char **envp, int pipefd[2])
 	}
 	printf("Value of fd and pipefd[1]: %d %d \n", fd, pipefd[1]);
 	dup2(fd, STDIN_FILENO);
-	dup2(pipefd[1],STDOUT_FILENO);
-	write(STDOUT_FILENO, "test output1 \n", 14);
-	execute(av, envp);
+	close(fd);
+	dup2(pipefd[1], STDOUT_FILENO);
 	close(pipefd[0]);
+	close(pipefd[1]);
+	execute_cmd(av[2], envp);
+	perror("execve failed");
+	exit(EXIT_FAILURE);
 }
 
 void	parent_process(char **av, char **envp, int pipefd[2])
 {
-	int fd;
-	
+	int	fd;
+
 	printf("Parent Process\n");
-	fd = open(av[4], O_WRONLY  | O_CREAT, 0645);
+	fd = open(av[4], O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 		return ;
 	dup2(pipefd[0], STDIN_FILENO);
 	dup2(fd, STDOUT_FILENO);
+	close(fd);
 	close(pipefd[1]);
-	write(STDOUT_FILENO, "test output2 \n", 14);
-	execute(av, envp);
+	close(pipefd[0]);
+//	write(STDOUT_FILENO, "test output2 \n", 14);
+	execute_cmd(av[3], envp);
 }
 
-void	execute(char **av, char **envp)
+void	execute(char *cmd, char **envp)
 {
-	printf("%s\n", av[4]);
+	printf("%s\n", cmd);
 	while (*envp)
 	{
 		printf("%s\n", envp[0]);

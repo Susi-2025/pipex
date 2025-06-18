@@ -6,13 +6,18 @@
 #    By: vinguyen <vinguyen@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/06/17 14:34:01 by vinguyen          #+#    #+#              #
-#    Updated: 2025/06/17 14:48:27 by vinguyen         ###   ########.fr        #
+#    Updated: 2025/06/18 12:24:05 by vinguyen         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = pipex
 
 SRC =	pipex.c \
+		pipex_utils.c \
+		ft_strnstr.c \
+		ft_split.c \
+		ft_strlen.c \
+		ft_strjoin.c \
 		
 OBJ = $(SRC:.c=.o)
 
